@@ -1,0 +1,271 @@
+## Project Structure
+
+This is an Expo + Rails 7x full-stack template:
+- Frontend: Expo (React Native) with Expo Router and NativeWind
+- Backend: Rails 7.2 API (in `backend/` submodule)
+
+## Startup Commands
+
+**Frontend (Expo):**
+```bash
+npm run start
+```
+
+**Backend (Rails API):**
+```bash
+npm run start-backend    # Starts Rails API (port 3001)
+```
+
+## When to Restart Frontend Development Server
+
+Restarting the Expo dev server is unnecessary because it automatically hot-reloads code changes in most cases. Changes to the following explicitly require a restart:
+- `package.json` (new dependencies installed)
+- `app.config.js` or `metro.config.js` (configuration changes)
+- `tailwind.config.js` (design system changes)
+- `babel.config.js` (build configuration changes)
+- Creating `components/Demo.tsx` (requires `app/_layout.tsx` to detect and render it)
+
+## Tech Stack
+
+### Frontend
+- Expo SDK ~51.0 (React Native 0.74.5)
+- Expo Router ~3.5 (file-based routing)
+- NativeWind v4 (Tailwind CSS for React Native)
+- TypeScript ~5.3
+- React 18.2
+
+### Backend (see backend/.clackyrules for details)
+- Ruby on Rails 7.2 (API mode)
+- PostgreSQL
+- Figaro (environment variables)
+- RSpec (testing)
+- Puma
+
+## Port Configuration
+
+- **Frontend (Expo web)**: 3000 (configurable via EXPO_WEB_PORT, default is 3000)
+- **Backend (Rails API)**: 3001 (auto-detected when running as submodule)
+
+## Cross-Platform Rules (iOS + Android + Web)
+
+**NEVER import from react-native (no web support):**
+- `Alert` ❌ → Use `import { Alert } from '@/utils/alert'` ✅
+- `ActionSheetIOS`, `ToastAndroid`, `BackHandler` - Platform specific, avoid or wrap
+
+**JSX Conditional Rendering:**
+- ❌ `{condition && <Component />}` - causes "Unexpected text node" error
+- ✅ `{condition ? <Component /> : null}` - always use ternary
+
+## MANDATORY PROJECT WORKFLOW - FOLLOW EXACTLY IN THIS ORDER
+
+**STOP! Before using ANY generators or creating feature screens, you MUST complete these steps first:**
+
+### Step 1: REQUIRED - Update Project Name and Design System First
+
+**ALWAYS start by updating the project name:**
+- Update `name` (display name, can be in any language) and `slug` (URL-safe identifier, English only) in `app.config.js`
+- Update backend app name: `echo "YourAppName" > backend/config/appname.txt`
+
+**ALWAYS update the design system in `tailwind.config.js`** before creating any screens/components.
+
+**ALWAYS use HSL colors in tailwind.config.js**
+
+CRITICAL: USE SEMANTIC TOKENS FOR COLORS. It's important you follow best practices. DO NOT use direct colors like `text-white`, `text-black`, `bg-white`, `bg-black`, etc. Everything must be themed via the design system defined in `tailwind.config.js`!
+
+**Design System Configuration:**
+- All color definitions are in `tailwind.config.js` under `theme.extend.colors`
+- `global.css` only imports Tailwind directives - NO custom CSS variables
+- Expo NativeWind does not support CSS variables, so all design tokens must be in Tailwind config
+
+**Available semantic tokens:**
+- Text: `text-text-primary`, `text-text-secondary`, `text-text-muted`
+- Background: `bg-surface`, `bg-surface-elevated`
+- Brand: `bg-primary`, `bg-secondary`, `bg-primary-light`, `bg-primary-dark`
+- Status: `bg-success`, `bg-warning`, `bg-danger`, `bg-info`
+- Borders: `border-border`
+
+Pay attention to contrast, color, and typography.
+
+### Step 2: REQUIRED - Develop demo screen based on Design System
+
+Develop a demo screen based on the new design system and user requirements, allowing users to quickly see UI effect. The screen should be located at `components/Demo.tsx`.
+
+**IMPORTANT**: Demo is ONLY for early development preview with fake data - NEVER copy its content to real screens. Once ANY real screen exists, you MUST delete Demo.tsx immediately.
+
+### Step 3: REQUIRED - Testing
+
+**ALWAYS test the app index page ensure render success**
+
+Restart project, then:
+```bash
+curl http://localhost:3000
+```
+
+### Step 4: Then proceed with other features
+
+Only after completing Steps 1-3, you can create other screens and components.
+
+### Step 5: MANDATORY - Before Task Completion
+
+**CRITICAL: Run tests before delivering any feature**
+
+**Frontend tests:**
+```bash
+npm test        # Jest tests
+```
+
+**Backend tests (if you modified any backend code):**
+```bash
+cd backend && rake test     # RSpec tests
+```
+
+- This is NON-NEGOTIABLE - never deliver with failing tests or lint errors
+- Backend: Run multiple times until all tests pass (shows max 5 failures at once)
+- **If you are planning tasks with TodoWrite tool, ALWAYS include "Run npm test and ensure all tests pass" (and "Run rake test" for backend changes) as specific task items**
+
+## Some important tips when Developing user authentication/payment/LLM-calling(AI APP) system
+
+**⚠️ BEFORE CREATING FEATURES - USE GENERATORS:**
+
+When developing features, **DO NOT create them manually**. Use generators:
+
+1. **API Client**: `npm run gen api RESOURCE [actions...]`
+   - Generates: `types/resource.ts`, `services/resource.ts`, `stores/resourceStore.ts`
+   - **FormData Support**: `create` and `update` methods automatically support both JSON and FormData (for file uploads)
+   - Backend: `cd backend && rails g controller api::v1::RESOURCE [actions...]`
+   - Example: `npm run gen api posts index show create update`
+
+2. **Auth System**: `npm run gen authentication`
+   - Frontend: Generates types, services, contexts, hooks, auth screens (sign-in/sign-up/forgot-password)
+   - Backend: `cd backend && rails generate authentication`
+   - Auto-wraps app with `<AuthProvider>` in `app/_layout.tsx`
+   - Usage: `const { user, login, logout } = useAuth();`
+
+## Development Guidelines
+
+### App Icons
+
+When user requests icon changes without providing specific images, use [ui-avatars.com](https://ui-avatars.com) to generate placeholder icons. Example: `curl -L "https://ui-avatars.com/api/?name=X&size=1024&background=6366f1&color=fff&bold=true&rounded=true" -o assets/icon.png` (replace for `adaptive-icon.png` with rounded=false, `splash-icon.png` with background=ffffff&color=6366f1, and `favicon.png` with size=64)
+
+### File Naming Convention
+
+**Simple plural naming (no underscores):**
+- Types: `types/photos.ts`, `types/users.ts`
+- Services: `services/photos.ts`, `services/users.ts`
+- Stores: `stores/photosStore.ts`, `stores/usersStore.ts` (camelCase with 'Store' suffix)
+
+**PascalCase (React components):**
+- Components: `components/PhotoCard.tsx`, `components/UserProfile.tsx`
+- Hooks: `hooks/useAuth.ts`, `hooks/usePhotos.ts`
+- Contexts: `contexts/AuthContext.tsx`, `contexts/ThemeContext.tsx`
+
+**kebab-case (pages/routes only):**
+- Pages: `app/new-entry.tsx`, `app/sign-in.tsx` (maps to URL path)
+
+### Code Naming (Variables, Types, API Data)
+
+**PascalCase** - Types, Interfaces, Components:
+- `User`, `FlowEntry`, `AuthResponse`, `SignInScreen`
+
+**camelCase** - Variables, Properties, Functions:
+- `sessionToken`, `createdAt`, `isLoading`, `passwordConfirmation`
+- Frontend uses camelCase, even for API data from Rails
+
+**⚠️ CRITICAL - Type definitions MUST use camelCase:**
+```typescript
+// ✅ Correct:  userName, createdAt
+// ❌ Wrong:    user_name, created_at (causes runtime errors!)
+```
+
+**Auto-conversion** - `services/api.ts` handles Rails ↔ JavaScript:
+- Rails backend (snake_case): `{ session_token: "abc", created_at: "..." }`
+- JS frontend (camelCase): `{ sessionToken: "abc", createdAt: "..." }`
+- Never use snake_case in TypeScript code - let api.ts convert automatically
+
+### Adding Dependencies
+- Always specify versions when installing packages
+- Frontend: Use Expo SDK 51 compatible versions
+- Backend: See backend/.clackyrules for Rails guidelines
+
+### API Communication & State Management
+- **CRITICAL**: NEVER import from `services/` in screens/components - ALWAYS use store layer
+- **Architecture Layers**:
+  - `services/api.ts` - HTTP client (internal - called by resource services)
+  - `services/storage.ts` - Storage wrapper (internal - called by stores)
+  - `services/resource.ts` - Business logic (internal - called by stores)
+  - `stores/resourceStore.ts` - **YOUR INTERFACE** (use this in screens)
+
+  ```typescript
+  // ✅ Correct - Use store in screens:
+  const { items, loading, fetchAll, addItem, updateItem, removeItem } = usePostsStore();
+
+  // List: await fetchAll();
+  // Create (JSON): await addItem({ title: 'Hello' });
+  // Create (FormData): await addItem(formData); // Same method, supports both!
+  // Update: await updateItem(id, data);
+  // Delete: await removeItem(id);
+
+  // ❌ Wrong - Never import from services/ directory:
+  // import { api } from '@/services/api'; // DON'T DO THIS!
+  // import { storage } from '@/services/storage'; // DON'T DO THIS!
+  // import { postsService } from '@/services/posts'; // DON'T DO THIS!
+  ```
+- **File Upload**: Use `utils/fileUpload.ts` + store methods
+  ```typescript
+  import { appendImageToFormData } from '@/utils/fileUpload';
+  const result = await ImagePicker.launchImageLibraryAsync(...);
+  const formData = new FormData();
+  await appendImageToFormData(formData, 'photo[image]', { uri: result.assets[0].uri }, 'photo.jpg');
+
+  // Use store method (NOT service!):
+  const addItem = usePhotosStore(s => s.addItem);
+  await addItem(formData);
+  ```
+- **ActiveStorage URL**: ALWAYS use `attachment_url(attachment)` for full url, NEVER use `only_path: true`
+
+### File-based Routing (Expo Router)
+- Routes defined in `app/` directory
+- `app/_layout.tsx` - Root layout
+- `app/index.tsx` - Home screen
+- New screens: Create files in `app/` directory
+
+### Styling (NativeWind)
+- Use Tailwind className syntax with semantic tokens
+- **NEVER use direct colors**: `text-white`, `bg-white`, `text-black`, `bg-black`
+- **ALWAYS use semantic tokens**: `text-text-primary`, `bg-surface`, `bg-primary`
+- **All design system configuration in `tailwind.config.js`**
+- `global.css` only contains Tailwind directive imports
+
+## Testing
+
+### Frontend Testing (Jest + React Native Testing Library)
+
+**Run tests:**
+```bash
+npm test
+```
+### Backend Testing
+
+See `backend/.clackyrules` - must run `rake test` before delivery
+
+## Important Notes
+
+### Demo File Management
+- `components/Demo.tsx` is ONLY for early development preview with fake data - NEVER copy its content to real screens
+- Once ANY real screen exists, you MUST delete Demo.tsx immediately
+- NEVER reference or link to Demo.tsx in production features - create real screens with real data instead
+- Demo serves as temporary placeholder until real screens are developed
+- `app/_layout.tsx` automatically detects and renders Demo.tsx if it exists
+
+### Code Quality Standards
+- Keep dependencies minimal and well-documented
+- Use TypeScript strictly - avoid `any` type when possible
+- Follow semantic naming conventions
+- For backend development guidelines, refer to `backend/.clackyrules`
+
+### DO NOT
+- Use fake data that should come from API/database
+- Create business logic in demo screens
+- Use direct color values (white, black, etc.) - use semantic tokens only
+- Skip testing before delivery
+- Commit code with lint errors or failing tests

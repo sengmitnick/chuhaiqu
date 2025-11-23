@@ -1,0 +1,3 @@
+[submodule "backend"]
+	path = backend
+	url = git@github.com:clacky-ai/rails-template-7x-starter.git

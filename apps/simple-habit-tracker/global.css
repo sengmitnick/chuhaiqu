@@ -1,0 +1,168 @@
+@tailwind base;
+@tailwind components;
+
+/*
+ * Design System Components
+ *
+ * Common reusable component classes for React Native/Expo
+ * Reference: backend/app/assets/stylesheets/application.css
+ */
+@layer components {
+  /* Button Base */
+  .btn {
+    @apply px-4 py-2 rounded-lg font-semibold text-white;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary active:opacity-70;
+  }
+
+  .btn-secondary,
+  .btn-info {
+    @apply btn bg-secondary active:opacity-70;
+  }
+
+  .btn-danger,
+  .btn-error {
+    @apply btn bg-danger active:opacity-70;
+  }
+
+  .btn-success {
+    @apply btn bg-success active:opacity-70;
+  }
+
+  .btn-warning {
+    @apply btn bg-warning active:opacity-70;
+  }
+
+  .btn-neutral {
+    @apply btn bg-neutral active:opacity-70;
+  }
+
+  .btn-ghost,
+  .btn-outline,
+  .btn-default,
+  .btn-light {
+    @apply btn bg-transparent border border-border text-text-secondary active:opacity-70;
+  }
+
+  /* Button Sizes */
+  .btn-xs {
+    @apply text-xs px-2 py-1;
+  }
+
+  .btn-sm {
+    @apply text-sm px-3 py-1.5;
+  }
+
+  .btn-md {
+    @apply text-sm px-4 py-2;
+  }
+
+  .btn-lg {
+    @apply text-base px-6 py-3;
+  }
+
+  .btn-xl {
+    @apply text-lg px-8 py-4;
+  }
+
+  /* Card Components */
+  .card {
+    @apply p-4 bg-surface-elevated rounded-lg;
+  }
+
+  .card-elevated {
+    @apply card shadow-lg;
+  }
+
+  .card-flat {
+    @apply card shadow-none bg-surface;
+  }
+
+  /* Badge Components */
+  .badge {
+    @apply px-2 py-1 rounded-full text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply badge bg-primary/10 text-primary;
+  }
+
+  .badge-secondary {
+    @apply badge bg-secondary/10 text-secondary;
+  }
+
+  .badge-success {
+    @apply badge bg-success-bg text-success;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning-bg text-warning;
+  }
+
+  .badge-danger,
+  .badge-error {
+    @apply badge bg-danger-bg text-danger;
+  }
+
+  .badge-info {
+    @apply badge bg-info-bg text-info;
+  }
+
+  .badge-neutral {
+    @apply badge bg-surface-elevated text-text-primary;
+  }
+
+  /* Alert/Notice Components */
+  .alert {
+    @apply p-4 rounded-lg border;
+  }
+
+  .alert-success {
+    @apply alert bg-success-bg border-success;
+  }
+
+  .alert-warning {
+    @apply alert bg-warning-bg border-warning;
+  }
+
+  .alert-danger,
+  .alert-error {
+    @apply alert bg-danger-bg border-danger;
+  }
+
+  .alert-info {
+    @apply alert bg-info-bg border-info;
+  }
+
+  /* Form Input Components */
+  .form-input,
+  .form-textarea,
+  .form-select {
+    @apply w-full px-3 py-2 border border-border rounded-lg bg-surface;
+  }
+
+  .form-label {
+    @apply text-sm font-medium text-text-primary mb-1;
+  }
+
+  .form-error {
+    @apply text-sm text-danger mt-1;
+  }
+
+  .form-help {
+    @apply text-sm text-text-muted mt-1;
+  }
+
+  /* Loading Components */
+  .loading-spinner {
+    @apply animate-spin rounded-full border-2 border-surface-elevated border-t-primary;
+  }
+
+  .skeleton {
+    @apply animate-pulse bg-surface-elevated rounded;
+  }
+}
+
+@tailwind utilities;
