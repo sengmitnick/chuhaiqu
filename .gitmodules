@@ -1,0 +1,4 @@
+[submodule "apps/镜小宠/chongxiaojing"]
+	path = apps/镜小宠/chongxiaojing
+	url = https://github.com/jingbao-store/chongxiaojing
+	branch = main
